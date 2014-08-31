@@ -1,0 +1,151 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{2C556EE3-27C7-44A4-BA23-A0FBB7F05FBB}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MigrationDB</RootNamespace>
+    <AssemblyName>MigrationDB</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AutoMapper">
+      <HintPath>..\packages\AutoMapper.3.2.1\lib\net40\AutoMapper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="AutoMapper.Net4">
+      <HintPath>..\packages\AutoMapper.3.2.1\lib\net40\AutoMapper.Net4.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer">
+      <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Dummy.cs" />
+    <Compile Include="Entities\Address.cs" />
+    <Compile Include="Entities\Bank.cs" />
+    <Compile Include="Entities\Contact.cs" />
+    <Compile Include="Entities\Days.cs" />
+    <Compile Include="Entities\FoodType.cs" />
+    <Compile Include="Entities\Menu.cs" />
+    <Compile Include="Entities\PostCode.cs" />
+    <Compile Include="Entities\Region.cs" />
+    <Compile Include="Entities\Restaurant.cs" />
+    <Compile Include="Entities\RestaurantEntity.cs" />
+    <Compile Include="Migrations\201408200852514_Initial.cs" />
+    <Compile Include="Migrations\201408200852514_Initial.Designer.cs">
+      <DependentUpon>201408200852514_Initial.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201408281101503_AddedMenu.cs" />
+    <Compile Include="Migrations\201408281101503_AddedMenu.Designer.cs">
+      <DependentUpon>201408281101503_AddedMenu.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201408281104339_AddedMenu1.cs" />
+    <Compile Include="Migrations\201408281104339_AddedMenu1.Designer.cs">
+      <DependentUpon>201408281104339_AddedMenu1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201408281518362_AddedTags.cs" />
+    <Compile Include="Migrations\201408281518362_AddedTags.Designer.cs">
+      <DependentUpon>201408281518362_AddedTags.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201408291334264_RemovedSynonym.cs" />
+    <Compile Include="Migrations\201408291334264_RemovedSynonym.Designer.cs">
+      <DependentUpon>201408291334264_RemovedSynonym.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Model1.cs" />
+    <Compile Include="PostCodeModel.cs" />
+    <Compile Include="Program.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="region.cs" />
+    <Compile Include="Resturante.cs" />
+    <Compile Include="Zipcode.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="13140.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="App.config" />
+    <None Include="BD\FoodCrave" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="BD\FoodCraveCreate.sql" />
+    <Content Include="BD\FoodCraveIns.sql" />
+    <Content Include="Readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201408200852514_Initial.resx">
+      <DependentUpon>201408200852514_Initial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201408281101503_AddedMenu.resx">
+      <DependentUpon>201408281101503_AddedMenu.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201408281104339_AddedMenu1.resx">
+      <DependentUpon>201408281104339_AddedMenu1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201408281518362_AddedTags.resx">
+      <DependentUpon>201408281518362_AddedTags.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201408291334264_RemovedSynonym.resx">
+      <DependentUpon>201408291334264_RemovedSynonym.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\AutoMapper.3.2.1\tools\AutoMapper.targets" Condition="Exists('..\packages\AutoMapper.3.2.1\tools\AutoMapper.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

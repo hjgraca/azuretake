@@ -1,0 +1,22 @@
+﻿@model IEnumerable<DAL.Entities.RestaurantEntity>
+@{
+    ViewBag.Title = "About";
+}
+<h2>@ViewBag.Title.</h2>
+<h3>@ViewBag.Message</h3>
+
+<p>Restaurants found @Model.Count()</p>
+
+@foreach (var item in Model)
+{
+    <div>
+        <img src="@item.LogoUrl" alt="@item.RowKey"/>
+        <ul>
+            <li>@item.RowKey</li>
+            <li>@item.Address</li>
+            <li>@item.City</li>
+            <li>@item.Latitude</li>
+            <li>@item.Longitude</li>
+        </ul>
+    </div>
+}
