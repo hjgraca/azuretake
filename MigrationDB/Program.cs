@@ -248,13 +248,13 @@ namespace MigrationDB
 
             // get and update restaurant
 
-            var rest = entity.Restaurants.First(x => x.FakeId == "13140");
-            rest.SeoName = parsedData.seoName;
-            rest.PageKeywords = parsedData.keywords;
-            rest.PageTitle = parsedData.title;
-            rest.Menus = lstMenu;
+            //var rest = entity.Restaurants.First(x => x.FakeId == "13140");
+            //rest.SeoName = parsedData.seoName;
+            //rest.PageKeywords = parsedData.keywords;
+            //rest.PageTitle = parsedData.title;
+            //rest.Menus = lstMenu;
 
-            entity.SaveChanges();
+            //entity.SaveChanges();
 
         }
 
