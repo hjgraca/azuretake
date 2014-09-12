@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Configuration;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -143,23 +145,23 @@ namespace MigrationDB
             //}
 
 
-            Mapper.CreateMap<MigrationDB.Dummy.Menuitem, Product>();
-            Mapper.CreateMap<MigrationDB.Dummy.Category, Category>();
+            //Mapper.CreateMap<MigrationDB.Dummy.Menuitem, Product>();
+            //Mapper.CreateMap<MigrationDB.Dummy.Category, Category>();
 
-            Mapper.CreateMap<MigrationDB.Dummy.Requiredaccessory, Accessory>()
-                .ForMember(dest => dest.IsRequired, x => x.MapFrom(or => true));
-            Mapper.CreateMap<MigrationDB.Dummy.Requiredaccessory1, Accessory>()
-                .ForMember(dest => dest.IsRequired, x => x.MapFrom(or => true));
+            //Mapper.CreateMap<MigrationDB.Dummy.Requiredaccessory, Accessory>()
+            //    .ForMember(dest => dest.IsRequired, x => x.MapFrom(or => true));
+            //Mapper.CreateMap<MigrationDB.Dummy.Requiredaccessory1, Accessory>()
+            //    .ForMember(dest => dest.IsRequired, x => x.MapFrom(or => true));
 
-            Mapper.CreateMap<MigrationDB.Dummy.Optionalaccessory, Accessory>()
-                .ForMember(dest => dest.IsRequired, x => x.MapFrom(or => false));
-            Mapper.CreateMap<MigrationDB.Dummy.Optionalaccessory1, Accessory>()
-                .ForMember(dest => dest.IsRequired, x => x.MapFrom(or => false));
+            //Mapper.CreateMap<MigrationDB.Dummy.Optionalaccessory, Accessory>()
+            //    .ForMember(dest => dest.IsRequired, x => x.MapFrom(or => false));
+            //Mapper.CreateMap<MigrationDB.Dummy.Optionalaccessory1, Accessory>()
+            //    .ForMember(dest => dest.IsRequired, x => x.MapFrom(or => false));
 
-            Mapper.CreateMap<MigrationDB.Dummy.Mealpart, Product>()
-                .ForMember(dest => dest.Name, x => x.MapFrom(or => or.Synonym + " " + or.Name))
-                .ForMember(dest => dest.Accessories, x => x.MapFrom(or => or.RequiredAccessories))
-                .ForMember(dest => dest.Accessories, x => x.MapFrom(or => or.OptionalAccessories));
+            //Mapper.CreateMap<MigrationDB.Dummy.Mealpart, Product>()
+            //    .ForMember(dest => dest.Name, x => x.MapFrom(or => or.Synonym + " " + or.Name))
+            //    .ForMember(dest => dest.Accessories, x => x.MapFrom(or => or.RequiredAccessories))
+            //    .ForMember(dest => dest.Accessories, x => x.MapFrom(or => or.OptionalAccessories));
 
             //Mapper.CreateMap<MigrationDB.Dummy.Menu, Menu>()
             //    .ForMember(dest => dest.Description, x => x.MapFrom(or => or.MenuDescription))
@@ -169,82 +171,153 @@ namespace MigrationDB
 
 
             // FileSystem
-            MigrationDB.Dummy.Rootobject parsedData;
+            //MigrationDB.Dummy.Rootobject parsedData;
 
-            using (StreamReader re = new StreamReader("13140.json"))
+
+            using (var con = new SqlConnection(ConfigurationManager.ConnectionStrings["connection"].ConnectionString))
             {
-                JsonTextReader reader = new JsonTextReader(re);
-                JsonSerializer se = new JsonSerializer();
-                parsedData = se.Deserialize<MigrationDB.Dummy.Rootobject>(reader);
-            }
-
-            var lstProds = new List<Product>();
-            var lstMenu = new List<Menu>();
-
-
-            var entity = new RestaurantEntity();
-            foreach (var menu in parsedData.menus.Take(1))
-            {
-                foreach (var category in menu.Categories)
+                con.Open();
+                using (var command = new SqlCommand("SELECT FakeId FROM ( SELECT FakeId,FakeNumVotes, FakeRating from [FoodCrave].[dbo].[Restaurants] ) SubQueryAlias order by FakeNumVotes desc, FakeRating desc " +
+                                                    "OFFSET 0 ROWS FETCH NEXT 1000 ROWS ONLY;", con))
+                using (var reader = command.ExecuteReader())
                 {
-                    var cat =entity.Categories.Attach(Mapper.Map<Category>(category));
-
-                    foreach (var menuitem in category.MenuItems.Take(10))
+                    int total = 1000, count = 0;
+                    while (reader.Read())
                     {
-                        var item = menuitem.Products.First();
-                        
-                        ProductType prType = ProductType.None;
-                        item.Tags.Each(x =>
+                        using (var webClient = new System.Net.WebClient())
                         {
-                            switch (x.Value.ToUpper())
+                            webClient.Headers.Add("Accept-Language", "en-GB");
+                            webClient.Headers.Add("User-Agent", "Fiddler");
+                            webClient.Headers.Add("Accept-Charset", "utf-8");
+                            try
                             {
-                                case "VEGETARIAN":
-                                    prType = prType | ProductType.Vegetarian;
-                                    break;
-                                case "SPICY":
-                                    prType = prType | ProductType.Spicy;
-                                    break;
-                                case "NUTS":
-                                    prType = prType | ProductType.Nuts;
-                                    break;
-                                default:
-                                    prType = ProductType.None;
-                                    break;
+                                var json =
+                                                        webClient.DownloadString(
+                                                            "http://uk-menu-iapi.just-eat.co.uk/restaurant/" + reader.GetString(0) + "/productcategories?type=Delivery");
+                                System.IO.File.WriteAllText(
+                                    Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName + "\\menus\\" + reader.GetString(0) + "-delivery.json",
+                                    json);
                             }
-                        });
+                            catch 
+                            {
+                            }
 
-                        lstProds.Add(new Product
-                        {
-                            Category = cat,
-                            Name = menuitem.Name,
-                            ProductType = prType,
-                            //Accessories = (ICollection<Accessory>)(from o in item.OptionalAccessories
-                            //                                       select Mapper.Map<Accessory>(o))
-                            //        .Union(from req in item.RequiredAccessories
-                            //               select
-                            //                   Mapper.Map<Accessory>(req)).ToList(),
-                            //Price = item.Price,
-                            //MealParts = Mapper.Map<ICollection<Product>>(item.MealParts),
-                            //Description = item.Description,
-                            //Options = menuitem.Products.Where(x => !string.IsNullOrWhiteSpace(x.Synonym)).Select(x => new Accessory
-                            //{
-                            //    Name = x.Synonym,
-                            //    Price = x.Price
-                            //}).ToList()
-                        });
-
-                        
+                            try
+                            {
+                                var json = webClient.DownloadString(
+                                                            "http://uk-menu-iapi.just-eat.co.uk/restaurant/" + reader.GetString(0) + "/productcategories?type=Collection");
+                                System.IO.File.WriteAllText(
+                                    Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName + "\\menus\\" + reader.GetString(0) + "-collection.json",
+                                    json);
+                            }
+                            catch
+                            {
+                            }
+                        }
+                        Debug.WriteLine("Missing: " + (total - count++));
                     }
                 }
-
-                lstMenu.Add(new Menu
-                {
-                    IsCollection = menu.IsCollection,
-                    MenuType = menu.IsCollection ? MenuType.Collection : MenuType.Delivery,
-                    Description = menu.MenuDescription,
-                    Products = lstProds,
-                });
             }
+
+            //var entity = new RestaurantEntity();
+            //var count = 0;
+            //var total = entity.Restaurants.Count();
+            //Debug.WriteLine("Total: " + (total));
+            //foreach (var restaurant in entity.Restaurants)
+            //{
+            //    using (var webClient = new System.Net.WebClient())
+            //    {
+            //        webClient.Headers.Add("Accept-Language", "en-GB");
+            //        webClient.Headers.Add("User-Agent", "Fiddler");
+            //        webClient.Headers.Add("Accept-Charset", "utf-8");
+            //        //webClient.Headers.Add("x-je-feature", "hack");
+            //        //webClient.Headers.Add("x-je-conversation", "hack");
+            //        //webClient.Headers.Add("x-je-request", "9e524b31-78e0-4431-acfe-8332d12c27ea");
+
+            //        var json =
+            //            webClient.DownloadString(
+            //                "http://uk-menu-iapi.just-eat.co.uk/restaurant/"+ restaurant.FakeId +"/productcategories?type=Delivery");
+            //        System.IO.File.WriteAllText(
+            //            Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName + "\\menus\\" + restaurant.FakeId + ".json",
+            //            json);
+            //    }
+            //    Debug.WriteLine("Missing: " + (total - count++));
+            //}
+
+            //using (StreamReader re = new StreamReader("13140.json"))
+            //{
+            //    JsonTextReader reader = new JsonTextReader(re);
+            //    JsonSerializer se = new JsonSerializer();
+            //    parsedData = se.Deserialize<MigrationDB.Dummy.Rootobject>(reader);
+            //}
+
+            //var lstProds = new List<Product>();
+            //var lstMenu = new List<Menu>();
+
+
+            //var entity = new RestaurantEntity();
+            //foreach (var menu in parsedData.menus.Take(1))
+            //{
+            //    foreach (var category in menu.Categories)
+            //    {
+            //        var cat =entity.Categories.Attach(Mapper.Map<Category>(category));
+
+            //        foreach (var menuitem in category.MenuItems.Take(10))
+            //        {
+            //            var item = menuitem.Products.First();
+                        
+            //            ProductType prType = ProductType.None;
+            //            item.Tags.Each(x =>
+            //            {
+            //                switch (x.Value.ToUpper())
+            //                {
+            //                    case "VEGETARIAN":
+            //                        prType = prType | ProductType.Vegetarian;
+            //                        break;
+            //                    case "SPICY":
+            //                        prType = prType | ProductType.Spicy;
+            //                        break;
+            //                    case "NUTS":
+            //                        prType = prType | ProductType.Nuts;
+            //                        break;
+            //                    default:
+            //                        prType = ProductType.None;
+            //                        break;
+            //                }
+            //            });
+
+            //            lstProds.Add(new Product
+            //            {
+            //                Category = cat,
+            //                Name = menuitem.Name,
+            //                ProductType = prType,
+            //                //Accessories = (ICollection<Accessory>)(from o in item.OptionalAccessories
+            //                //                                       select Mapper.Map<Accessory>(o))
+            //                //        .Union(from req in item.RequiredAccessories
+            //                //               select
+            //                //                   Mapper.Map<Accessory>(req)).ToList(),
+            //                //Price = item.Price,
+            //                //MealParts = Mapper.Map<ICollection<Product>>(item.MealParts),
+            //                //Description = item.Description,
+            //                //Options = menuitem.Products.Where(x => !string.IsNullOrWhiteSpace(x.Synonym)).Select(x => new Accessory
+            //                //{
+            //                //    Name = x.Synonym,
+            //                //    Price = x.Price
+            //                //}).ToList()
+            //            });
+
+                        
+            //        }
+            //    }
+
+            //    lstMenu.Add(new Menu
+            //    {
+            //        IsCollection = menu.IsCollection,
+            //        MenuType = menu.IsCollection ? MenuType.Collection : MenuType.Delivery,
+            //        Description = menu.MenuDescription,
+            //        Products = lstProds,
+            //    });
+            //}
 
             // get and update restaurant
 
